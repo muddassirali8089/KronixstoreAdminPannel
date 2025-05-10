@@ -29,6 +29,9 @@ const getAll = async (req, res) => {
   try {
     // Fetch all items
     const [items] = await db.query('SELECT * FROM items');
+
+    console.log(items);
+    
     if (!items.length) return res.status(404).json({ message: 'No items found' });
 
     // Fetch categories
@@ -94,6 +97,9 @@ const getAll = async (req, res) => {
 
 
 const getOne = async (req, res) => {
+
+  console.log("api hit for getone item........");
+  
   try {
     const itemId = req.params.id;
 
@@ -133,8 +139,8 @@ const getOne = async (req, res) => {
 };
 
 
-// ✅ CREATE ITEM
 const create = async (req, res) => {
+  console.log(req.body);
   const {
     name, price, mrp, status, description, images, category, gender,
     type, is_new, sale, rate, brand, sold, qty, min_qty,
@@ -145,10 +151,12 @@ const create = async (req, res) => {
   await connection.beginTransaction();
 
   try {
+    // Process main images
     const imagePaths = Array.isArray(images)
       ? images.map(img => uploadBase64Image(img, 'main')).filter(Boolean)
       : [];
 
+    // Insert main item with proper values (not hardcoded strings)
     const [result] = await connection.query(
       `INSERT INTO items (
         name, price, mrp, added_on, status, description, images,
@@ -156,37 +164,70 @@ const create = async (req, res) => {
         sold, qty, min_qty, thumb_images, action, slug
       ) VALUES (?, ?, ?, NOW(), ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
-        name, price, mrp, status, description, JSON.stringify(imagePaths),
-        category, gender, 'type', 'is_new', 'sale', 'rate', 'brand',
-        'sold', qty, min_qty, JSON.stringify(imagePaths), 'action', 'slug'
+        name, 
+        price, 
+        mrp, 
+        status ? 1 : 0,
+        description, 
+        JSON.stringify(imagePaths),
+        category, 
+        gender, 
+        type || '',
+        is_new ? 1 : 0,
+        sale ? 1 : 0,
+        rate || 0,
+        brand || '',
+        sold || 0,
+        qty || 0,
+        min_qty || 0,
+        JSON.stringify(thumb_images || []),
+        action || '',
+        slug || ''
       ]
     );
 
     const itemId = result.insertId;
 
-    // Save variations
-    await Promise.all(variations.map(async (v) => {
-      const varImage = v.image ? uploadBase64Image(v.image, 'var') : '';
-      await connection.query(
-        `INSERT INTO items_variation (p_id, color, color_code, image) VALUES (?, ?, ?, ?)`,
-        [itemId, v.color, v.color_code, varImage]
-      );
-    }));
+    // Save variations if they exist
+    if (variations && variations.length > 0) {
+      await Promise.all(variations.map(async (v) => {
+        if (v.color && v.color_code) {
+          const varImage = v.image ? uploadBase64Image(v.image, 'var') : '';
+          await connection.query(
+            `INSERT INTO items_variation (p_id, color, color_code, color_image, image) VALUES (?, ?, ?, ?, ?)`,
+            [itemId, v.color, v.color_code, varImage, varImage]
+          );
+        }
+      }));
+    }
 
-    // Save sizes
-    await Promise.all(sizes.map(async (s) => {
-      await connection.query(
-        `INSERT INTO items_size (p_id, size) VALUES (?, ?)`,
-        [itemId, s]
-      );
-    }));
+    // Save sizes if they exist
+    if (sizes && sizes.length > 0) {
+      await Promise.all(sizes.map(async (s) => {
+        if (s) {
+          await connection.query(
+            `INSERT INTO items_size (p_id, size) VALUES (?, ?)`,
+            [itemId, s]
+          );
+        }
+      }));
+    }
 
     await connection.commit();
     res.status(201).json({ message: 'Item created', id: itemId });
   } catch (err) {
     await connection.rollback();
-    console.error(err);
-    res.status(500).json({ message: 'Error creating item', error: err.message });
+    console.error('Database error:', err);
+    
+    if (err.code === 'ER_DUP_ENTRY') {
+      return res.status(400).json({ message: 'Item with this name already exists' });
+    }
+    
+    res.status(500).json({ 
+      message: 'Error creating item', 
+      error: err.message,
+      stack: process.env.NODE_ENV === 'development' ? err.stack : undefined
+    });
   } finally {
     connection.release();
   }

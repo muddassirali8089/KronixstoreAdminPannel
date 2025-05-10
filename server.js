@@ -23,4 +23,21 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/images', imageRoutes);
 
+
+
 app.listen(3030, () => console.log('Server running on port 3030'));
+
+
+const db = require('./controllers/db');
+
+app.get('/test-db', async (req, res) => {
+  try {
+    console.log("connected to the database..");
+    
+    res.send("connected to the database....");
+  } catch (err) {
+    console.error('DB test error:', err);
+    res.status(500).send('Database connection failed');
+  }
+});
+

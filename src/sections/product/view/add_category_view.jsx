@@ -23,7 +23,7 @@ const AddCategoryForm = () => {
       if (!id) return; // If no id in URL, skip
 
       try {
-        const response = await axios.get(`https://api.kronixstore.com/api/categories/id/${id}`);
+        const response = await axios.get(`http://localhost:3030/api/categories/id/${id}`);
         console.log(response.data);
         
         setCategory(response.data); // Assuming response contains category data
@@ -61,11 +61,11 @@ const AddCategoryForm = () => {
     try {
       if (id) {
         // Update existing category
-        await axios.put(`https://api.kronixstore.com/api/categories/${id}`, category);
+        await axios.put(`http://localhost:3030/api/categories/${id}`, category);
         alert('Category updated!');
       } else {
         // Create new category
-        await axios.post('https://api.kronixstore.com/api/categories', category);
+        await axios.post('http://localhost:3030/api/categories', category);
         alert('Category added successfully!');
       }
 

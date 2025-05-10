@@ -13,6 +13,9 @@ const getOne = async (req, res) => {
 };
 
 const create = async (req, res) => {
+
+    console.log("i am in the user create controller...");
+    
     const { name, email, mobile, status, password } = req.body;
 
     const nm = name ?? 0;

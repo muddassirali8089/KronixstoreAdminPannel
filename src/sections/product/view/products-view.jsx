@@ -71,7 +71,7 @@ export function ProductsView() {
   useEffect(() => {
     const fetchItems = async () => {
       try {
-        const response = await axios.get('https://api.kronixstore.com/api/items');
+        const response = await axios.get('http://localhost:3030/api/items');
         setItems(response.data); // assuming response is an array of categories
         setLoading(false);
       } catch (err) {
@@ -84,7 +84,7 @@ export function ProductsView() {
   }, []);
   const deleteItems = async (id) => {
     try {
-      await axios.delete(`https://api.kronixstore.com/api/items/${id}`);
+      await axios.delete(`https://api.kronixstore.com//${id}`);
       window.location.reload();
     } catch (err) {
       console.error(err);

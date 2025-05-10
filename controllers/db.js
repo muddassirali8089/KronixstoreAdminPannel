@@ -1,7 +1,15 @@
 const mysql = require('mysql2/promise');
 const dotenv = require("dotenv");
 
-dotenv.config({ path: "C:\\Users\\ayanp\\Pictures\\material-kit-react-main\\controllers\\.env" });
+// dotenv.config({ path: "C:\\Users\\ayanp\\Pictures\\KronixstoreAdminPannel\\controllers\\.env" });
+
+// dotenv.config({  path: __dirname + "/.env" });
+
+dotenv.config({ path: __dirname + "/.env" });
+
+
+
+
 const db = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,

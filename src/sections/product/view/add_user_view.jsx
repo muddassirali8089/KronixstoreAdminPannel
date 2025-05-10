@@ -34,7 +34,7 @@ const AddUser = () => {
       alert('Please fill all required fields');
       return;
     }
-    const response = axios.post('https://api.kronixstore.com/api/users', product);
+    const response = axios.post('http://localhost:3030/api/users', product);
     navigate('/user');
     console.log('User Added:', product);
     alert('User added successfully!');

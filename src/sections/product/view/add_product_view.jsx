@@ -13,14 +13,23 @@ const AddProductForm = () => {
     price: '',
     mrp: '',
     category: '',
-    qty: '',
-    min_qty: '',
+    qty: 0,
+    min_qty: 0,
     images: [],
     gender: '',
     description: '',
     status: true,
     variations: [],
     sizes: [],
+    type: '',       // Add this
+    is_new: false,  // Add this (boolean)
+    sale: false,    // Add this (boolean)
+    rate: 0,        // Add this (number)
+    brand: '',      // Add this
+    sold: 0,        // Add this (number)
+    thumb_images: [], // Add this
+    action: '',     // Add this
+    slug: ''        // Add this
   });
 
   const [categories, setCategories] = useState([]);
@@ -33,7 +42,7 @@ const AddProductForm = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('https://api.kronixstore.com/api/categories');
+        const response = await axios.get('http://localhost:3030/api/categories');
         setCategories(response.data);
       } catch (err) {
         setError(err.message || 'Something went wrong');
@@ -50,7 +59,7 @@ const AddProductForm = () => {
       if (!id) return;
   
       try {
-        const response = await axios.get(`https://api.kronixstore.com/api/items/id/${id}`);
+        const response = await axios.get(`http://localhost:3030/api/items/id/${id}`);
         const existing = response.data;
   
         // Ensure all fields are normalized before setting state
@@ -156,6 +165,8 @@ const AddProductForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+
+    console.log({...product});
     if (!product.name || !product.price || !product.category) {
       alert('Please fill all required fields');
       return;
@@ -168,7 +179,7 @@ const AddProductForm = () => {
         alert('Item updated!');
       } else {
         // Create new
-        const response = await axios.post('https://api.kronixstore.com/api/items', product);
+        const response = await axios.post('http://localhost:3030/api/items', product);
 
 
         if (response.data.message === 'iae') {

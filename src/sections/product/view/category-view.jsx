@@ -72,7 +72,7 @@ export function CategoryView() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get('https://api.kronixstore.com/api/categories');
+        const response = await axios.get('http://localhost:3030/api/categories');
         setCategories(response.data); // assuming response is an array of categories
         setLoading(false);
       } catch (err) {
@@ -87,7 +87,7 @@ export function CategoryView() {
 
   const handleDeleteCategory = async (id) => {
     try {
-      await axios.delete(`https://api.kronixstore.com/api/categories/${id}`);
+      await axios.delete(`http://localhost:3030/api/categories/${id}`);
       window.location.reload();
     } catch (err) {
       console.error(err);

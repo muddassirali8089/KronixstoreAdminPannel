@@ -97,7 +97,7 @@ export function UserView() {
     useEffect(() => {
       const fetchCategories = async () => {
         try {
-          const response = await axios.get('https://api.kronixstore.com/api/users');
+          const response = await axios.get('http://localhost:3030/api/users');
           setCategories(response.data); // assuming response is an array of categories
           setLoading(false);
         } catch (err) {
